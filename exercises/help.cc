@@ -16,17 +16,17 @@ std::vector<std::string> split (const std::string &s, char delim) {
     return result;
 }
 
-bool is_placeholder(std::string *string) {
+bool placeholder(std::string *string) {
   return string->front() == '<' && string->back() == '>';
 }
 
-std::string find_string(std::string in_string,
-                        std::unordered_map<std::string, std::string> *curr_dict,
-                        std::unordered_map<std::string, std::string> *next_dict) {
-  if (is_placeholder(&in_string)){
-    return in_string;
-  } else {
-    return find_string(curr_dict->at(in_string), next_dict, curr_dict);
+void do_replacement(std::vector<std::string> *pattern,
+                    std::string value,
+                    std::string placeholder){
+  for (unsigned int i=0; i<pattern->size(); i++){
+    if (pattern->at(i) == placeholder){
+      pattern->operator[](i) = value;
+    }
   }
 }
 
@@ -34,6 +34,7 @@ int main(void) {
   int n;
   std::cin >> n;
   std::cin.ignore(256, '\n');
+
   for(int i=0; i<n; i++){
     std::string input;
     std::vector<std::string> input_vector1, input_vector2;
@@ -44,62 +45,61 @@ int main(void) {
     std::getline(std::cin, input);
     input_vector2 = split(input, ' ');
 
-    int index=0;
-    bool failure = false;
-    for (std::string string_temp : input_vector2) {
-      std::string key, value;
-      std::unordered_map<std::string, std::string> *correct_dict;
-
-      if (is_placeholder(&string_temp) && !is_placeholder(&input_vector1[index])){
-        key = string_temp;
-        value = input_vector1[index];
-        correct_dict = &dict1;
-      } else if (!is_placeholder(&string_temp) && is_placeholder(&input_vector1[index])){
-        value = string_temp;
-        key = input_vector1[index];
-        correct_dict = &dict2;
-      } else {
-        continue;
-      }
-
-      if (correct_dict->count(key) == 0){
-        correct_dict->operator[](key) = value;
-      } else if (correct_dict->at(key) != value){
-        failure = true;
-        break;
-      }
-
-      index += 1;
+    if (input_vector1.size() != input_vector2.size()){
+      std::cout << "-\n";
+      continue;
     }
+
+    bool failure = false;
+    bool change = false;
+    while (true) {
+      change = false;
+      for (unsigned int index = 0; index < input_vector1.size(); index++){
+        if (placeholder(&input_vector1[index]) && !placeholder(&input_vector2[index])){
+          do_replacement(&input_vector1, input_vector2[index], input_vector1[index]);
+          change = true;
+        } else if (!placeholder(&input_vector1[index]) && placeholder(&input_vector2[index])){
+          do_replacement(&input_vector2, input_vector1[index], input_vector2[index]);
+          change = true;
+        }
+      }
+
+      if (change) {continue;}
+      change = false;
+
+      for (unsigned int index = 0; index < input_vector1.size(); index++) {
+        if (placeholder(&input_vector1[index]) && placeholder(&input_vector2[index])){
+          std::string tmp1 = input_vector1[index];
+          std::string tmp2 = input_vector2[index];
+          do_replacement(&input_vector1, "kekw", tmp1);
+          do_replacement(&input_vector2, "kekw", tmp2);
+          change = true;
+        }
+      }
+
+      if (change) {continue;}
+
+      for (unsigned int i=0; i<input_vector1.size(); i++){
+        if (input_vector1[i] != input_vector2[i]){
+          failure = true;
+        }
+      }
+
+      break;
+    }
+
 
     if (failure){
       std::cout << "-\n";
     } else {
       for (std::string string : input_vector1){
-        std::cout <<  find_string(string, &dict1, &dict2) << " ";
+        std::cout <<  string << " ";
       }
       std::cout << '\n';
     }
   }
+
+  return 0;
 }
-
-/*
-7
-<a> <b> f
-<a> <b> <b>
-<a> <b> <b>
-<a> <b> f
-<a> <b> <b>
-<b> <b> f
-<b> <b> f
-<a> <b> <b>
-<a> <a> <b> <b> <c> <c> <b>
-a <a> <a> <b> <b> <c> <c>
-<a> <a> <b> <b> <c> <c> <d> <d>
-a <a> <a> <b> <b> <c> <c> a
-<a> <a> <b> <b> <c> <c> <d> <d>
-<d> <a> <a> <b> a <c> <c> <d>
-*/
-
 
 
