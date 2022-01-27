@@ -1,7 +1,21 @@
-3
+10
 how now brown <animal>
 <foo> now <color> cow
 who are you
 <a> <b> <a>
 <a> b
 c <a>
+<a> <b> f
+<a> <b> <b>
+<a> <b> <b>
+<a> <b> f
+<a> <b> <b>
+<b> <b> f
+<b> <b> f
+<a> <b> <b>
+<a> <a> <b> <b> <c> <c> <b>
+a <a> <a> <b> <b> <c> <c>
+<a> <a> <b> <b> <c> <c> <d> <d>
+a <a> <a> <b> <b> <c> <c> a
+<a> <a> <b> <b> <c> <c> <d> <d>
+<d> <a> <a> <b> a <c> <c> <d>
