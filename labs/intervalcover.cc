@@ -4,8 +4,8 @@
 
 struct interval{
   int index;
-  float start;
-  float end;
+  double start;
+  double end;
   bool operator < (const interval& i) const { return (start < i.start); }
 };
 
@@ -31,10 +31,10 @@ struct interval{
 std::vector<int> cover(interval interval_goal, std::vector<interval> *intervals){
 
   std::sort(intervals->begin(), intervals->end());
-  std::vector<int> cover;
+  std::vector<int> cover = {};
 
   interval covered = {-1, interval_goal.start, interval_goal.start };
-  int indexTF = 0;
+  int sorted_index = 0;
   for (interval inter : *intervals){
     /*
       Case 1: If same pos/earlier and better!
@@ -46,18 +46,18 @@ std::vector<int> cover(interval interval_goal, std::vector<interval> *intervals)
         cover.pop_back();
       }
       covered.end = inter.end;
-      cover.push_back(intervals->at(indexTF).index);
+      cover.push_back(intervals->at(sorted_index).index);
     } else if (inter.start <= covered.end && inter.end > covered.end){
       covered.start = covered.end;
       covered.end = inter.end;
-      cover.push_back(intervals->at(indexTF).index);
+      cover.push_back(intervals->at(sorted_index).index);
     }
 
     /* Stop at the fist occurance of a valid result */
     if (covered.end >= interval_goal.end){
       break;
     }
-    indexTF++;
+    sorted_index++; 
   }
 
   // If we did not cover the entire goal interval return empty.
@@ -69,7 +69,7 @@ std::vector<int> cover(interval interval_goal, std::vector<interval> *intervals)
 }
 
 int main(void) {
-  float start,end;
+  double start,end;
   while(std::cin >> start >> end){
     struct interval interval_goal = {0, start, end};
 
@@ -77,7 +77,7 @@ int main(void) {
     int n;
     std::cin >> n;
     for (int j = 0; j < n; j++){
-      float start,end;
+      double start,end;
       std::cin >> start >> end;
       struct interval inter = {j, start, end};
       intervals.push_back(inter);
