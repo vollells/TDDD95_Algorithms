@@ -3,42 +3,29 @@
 #include <algorithm>
 
 struct interval{
+  // Index used for answer.
   int index;
   double start;
   double end;
   bool operator < (const interval& i) const { return (start < i.start); }
 };
 
-/* Test case with every case i can imagine. (Have tested with big ints and decimals).
-0 10
-12
--3 -2
--2.5 1
-0 5
-0 6
-4 7
-4 7
-6 10
-6 10
-9.5 14
-13 14
-13 14
-22 23
-2
-3 6
-*/
-
 std::vector<int> cover(interval interval_goal, std::vector<interval> *intervals){
 
   std::sort(intervals->begin(), intervals->end());
   std::vector<int> cover = {};
 
-  interval covered = {-1, interval_goal.start, interval_goal.start };
+  /*
+    - Covered[1] : The area which has been optimally covered
+    - Covered[2] : The area which has a coverage, -1 as do goals fails
+    otherwise.
+  */
+  interval covered = {-1, interval_goal.start, interval_goal.start-1};
   int sorted_index = 0;
   for (interval inter : *intervals){
     /*
       Case 1: If same pos/earlier and better!
-      Case 2: If after the previous start add as new refrence!
+      Case 2: If after the previous start add as new reference!
     */
     if (inter.start <= covered.start && ((cover.empty() && inter.end >= covered.end)||
                                          (!cover.empty() && inter.end > covered.end))){
