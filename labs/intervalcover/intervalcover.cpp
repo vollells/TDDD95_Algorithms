@@ -1,24 +1,18 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include "intervalcover.h"
 
-struct interval{
-  // Index used for answer.
-  int index;
-  double start;
-  double end;
-  bool operator < (const interval& i) const { return (start < i.start); }
+bool operator<(const interval& lhs, const interval& rhs) {
+  return lhs.start < rhs.start;
 };
 
 std::vector<int> cover(interval interval_goal, std::vector<interval> *intervals){
-
   std::sort(intervals->begin(), intervals->end());
   std::vector<int> cover = {};
-
   /*
     - Covered[1] : The area which has been optimally covered
-    - Covered[2] : The area which has a coverage, -1 as do goals fails
-    otherwise.
+    - Covered[2] : The area which has a possible coverage.
   */
   interval covered = {-1, interval_goal.start, interval_goal.start-1};
   int sorted_index = 0;
@@ -44,7 +38,7 @@ std::vector<int> cover(interval interval_goal, std::vector<interval> *intervals)
     if (covered.end >= interval_goal.end){
       break;
     }
-    sorted_index++; 
+    sorted_index++;
   }
 
   // If we did not cover the entire goal interval return empty.
