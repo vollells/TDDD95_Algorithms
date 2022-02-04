@@ -1,8 +1,9 @@
+#include "iostream"
 #include "fenwick-tree.h"
 
 FenwickTree::FenwickTree (long size){
   length = size+1;
-  fenwickTree = new long[size+1];
+  fenwickTree = new long[size+2];
 }
 
 FenwickTree::~FenwickTree(){
@@ -26,6 +27,7 @@ long FenwickTree::sum(long index) {
     sum += fenwickTree[index];
     index -= (index & -index);
   }
+
   return sum;
 }
 
