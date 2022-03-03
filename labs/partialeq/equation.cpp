@@ -16,12 +16,9 @@ std::vector<std::string> split (const std::string &s, char delim) {
     return result;
 }
 
-//std::getline(std::cin, input);
 
-
-
-void toRowEchelon(std::vector<std::vector<long double>>& lhs,
-            std::vector<long double>& rhs, unsigned long N) {
+void toRowEchelon(std::vector<std::vector<long double>>& lhs, std::vector<long double>& rhs,
+                  std::vector<unsigned long>& varRowIndex, unsigned long& offset, unsigned long N) {
 
   // k: pivot col, h: pivot row.
   unsigned long pCol = 0, pRow = 0;
@@ -29,18 +26,21 @@ void toRowEchelon(std::vector<std::vector<long double>>& lhs,
   while (pCol < N && pRow < N){
     unsigned long maxIndex = 0;
     long double maxValue = 0;
-
     for (unsigned long i = pRow; i < N; i++){
       if (std::abs(lhs[i][pCol]) > std::abs(maxValue)){
         maxIndex = i;
         maxValue = std::abs(lhs[maxIndex][pCol]);
       }
     }
+    
 
     if (maxValue == 0){
       //No pivot in this column, pass to next column
+      offset++;
+      std::swap(varRowIndex[pRow], varRowIndex[N-offset]);
       pCol++;
     } else {
+
       std::swap(lhs[pRow], lhs[maxIndex]);
       std::swap(rhs[pRow], rhs[maxIndex]);
 
@@ -60,6 +60,7 @@ void toRowEchelon(std::vector<std::vector<long double>>& lhs,
   }
 }
 
+
 template<typename T>
 T sumVector(std::vector<T> input){
   T answer = 0;
@@ -69,43 +70,57 @@ T sumVector(std::vector<T> input){
   return answer;
 }
 
-bool checkNoneError (std::vector<std::vector<long double>>& lhs,
-                     std::vector<long double>& rhs, unsigned long N, bool& multiple){
 
-  for(unsigned long pRow = N-1; pRow >= 0; pRow--){
-    bool zeroRow = sumVector(lhs[pRow]) == 0;
-    if (!multiple && zeroRow){
-      multiple = true;
-    }
-    if (!zeroRow){
-      break;
-    }
+bool checkNoneError(std::vector<long double>& rhs, unsigned long offset, unsigned long N){
+
+  for(unsigned long pRow = N-1; pRow >= N-offset; pRow--){
     if (rhs[pRow] != 0){
       return true;
     }
+    if (pRow == 0){break;}
   }
   return false;
+
 }
 
-void backSubstitution(std::vector<std::vector<long double>>& lhs,
-                      std::vector<long double>& rhs,
-                      std::vector<long double>& result, unsigned long offset, unsigned long N){
+bool checkMultipleError(std::vector<std::vector<long double>>& lhs, std::vector<long double>& rhs,
+                        std::vector<unsigned long>& varRowIndex , std::vector<bool>& known,
+                        unsigned long offset, unsigned long N){
 
-  for (unsigned long variable = N-1; variable-offset >= 0; variable--) {
-    unsigned long pRow = variable-offset;
-    if (lhs[pRow][variable] == 0){
+  bool result = false;
+  for (unsigned long pRow = 0; pRow < N-offset; pRow++) {
+    for (unsigned long var = pRow; var < N; var++) {
+      if (lhs[pRow][var] != 0 && rhs[varRowIndex[var]] == 0){
+        result = true;
+        known[var] = false;
+      }
+    }
+  }
+  return result;
+}
+
+void backSubstitution(std::vector<std::vector<long double>>& lhs, std::vector<long double>& rhs,
+                      std::vector<unsigned long>& varRowIndex, std::vector<long double>& result,
+                      std::vector<bool>& known, unsigned long offset, unsigned long N){
+
+  for (long variable = N-1; (variable-(signed long)offset) >= 0; variable--) {
+
+    if (lhs[varRowIndex[variable]][variable] == 0){
+      offset--;
       continue;
     }
 
-    long double ratio = 1 / lhs[pRow][variable];
-    result[variable] = (rhs[pRow] * ratio);
-    for (unsigned long pCol = N-1; pCol > variable; pCol--) {
-      result[variable] -= (lhs[pRow][pCol] * ratio * result[pCol]);
+    long double ratio = 1 / lhs[varRowIndex[variable]][variable];
+
+    
+    result[variable] = (rhs[varRowIndex[variable]] * ratio);
+
+    for (long pCol = N-1; pCol > variable; pCol--) {
+      result[variable] -= (lhs[varRowIndex[variable]][pCol] * ratio * result[pCol]);
     }
 
-    if (pRow == 0) {break;}
-  }
 
+  }
 }
 
 int main(void){
@@ -121,7 +136,7 @@ int main(void){
 
     std::vector<std::vector<long double>> lhs(N,std::vector<long double>(N));
     std::vector<long double> rhs(N);
-    std::vector<bool> known(N);
+    std::vector<unsigned long> varRowIndex(N);
 
     for (unsigned long i = 0; i < N; i++){
       for (unsigned long j = 0; j < N; j++){
@@ -130,21 +145,21 @@ int main(void){
     }
     for (unsigned long i = 0; i < N; i++){
       std::cin >> rhs[i];
+      varRowIndex[i] = i;
     }
 
-    toRowEchelon(lhs, rhs, N);
-
     unsigned long offset = 0;
-    bool none = false, multiple = false;
-    none = checkNoneError(lhs, rhs, N, multiple);
-    if (none){
+    std::vector<bool> known(N, true);
+
+    toRowEchelon(lhs, rhs, varRowIndex, offset, N);
+
+    if (offset != 0 && checkNoneError(rhs, offset, N)){
       std::cout << "inconsistent\n";
-    } else if (multiple) {
+    } else if (checkMultipleError(lhs, rhs, varRowIndex, known, offset, N)) {
       std::cout << "multiple\n";
     } else {
       std::vector<long double> result(N);
-      backSubstitution(lhs, rhs, result, offset, N);
-
+      backSubstitution(lhs, rhs, varRowIndex, result, known, offset, N);
       for (unsigned long i = 0; i < N; i++){
         std::cout << result[i] << ' ';
       }

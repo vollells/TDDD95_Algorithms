@@ -7,6 +7,8 @@ int main(void){
   long N,T;
   std::cin >> N >> T;
 
+  std::vector<long> result (T, 0);
+
   std::vector<std::priority_queue<long, std::vector<long>>>
      timeslots(T, std::priority_queue<long, std::vector<long>>());
 
@@ -16,20 +18,35 @@ int main(void){
     timeslots[ti].push(ci);
   }
 
-  long maxMoney = 0;
-  for (long i= 0; i < T; i++){
-    long nPT = -1;
-    for (long j = i; j < T; j++){
-      if (!timeslots[j].empty()){
-        nPT = j;
+
+  for(long i = 0; i < T; i++){
+    if (!timeslots[i].empty()){
+        result[i] = timeslots[i].top();
+        timeslots[i].pop();
+    }
+
+    while (!timeslots[i].empty()){
+      long leastIndex = -1;
+      long leastValue = 100000000000;
+      for (long j = i-1; j >= 0; j--) {
+        if (result[j] < leastValue){
+          leastIndex = j;
+          leastValue = result[j];
+        }
+      }
+
+      if (timeslots[i].top() > leastValue){
+        result[leastIndex] = timeslots[i].top();
+        timeslots[i].pop();
+      } else {
         break;
       }
     }
-    if (nPT == -1){
-      break;
-    }
-    maxMoney += timeslots[nPT].top();
-    timeslots[nPT].pop();
+  }
+
+  long maxMoney = 0;
+  for( long elem : result){
+    maxMoney += elem;
   }
 
   std::cout << maxMoney << '\n';
