@@ -20,27 +20,31 @@ struct Graph{
   std::vector<T> price;
   Graph(T inN) : N(inN){
     edges = std::vector<std::vector<Edge<T>>>(N);
-    gasCost = std::vector<std::vector<T>>(N, std::vector<T>(100, INT16_MAX));
+    gasCost = std::vector<std::vector<T>>(N, std::vector<T>(101, INT32_MAX));
     price = std::vector<T>(N);
+  }
+  void graphReset(){
+    gasCost = std::vector<std::vector<T>>(N, std::vector<T>(101, INT32_MAX));
   }
 };
 
 
-std::vector<Edge<int>> shortestPath (Graph<int> &graph, int startIndex, int cap){
+std::vector<Edge<long>> shortestPath (Graph<long> &graph, long startIndex, long cap){
 
-  std::vector<Edge<int>> result(graph.edges.size(), Edge<int>{-1, 0, INT32_MAX});
+  std::vector<Edge<long>> result(graph.edges.size(), Edge<long>{-1, 0, INT32_MAX});
   // Using edges as Nodes
-  std::priority_queue<Edge<int>, std::vector<Edge<int>>, std::greater<Edge<int>>> unsetNodes;
+  std::priority_queue<Edge<long>, std::vector<Edge<long>>, std::greater<Edge<long>>> unsetNodes;
 
   unsetNodes.emplace(startIndex, 0, 0);
-  result[startIndex] = Edge<int>(startIndex, 0, 0);
+  graph.gasCost[startIndex][0] = 0;
+  result[startIndex] = Edge<long>(startIndex, 0, 0);
 
   while(!unsetNodes.empty()){
-    Edge<int> curr = unsetNodes.top();
+    Edge<long> curr = unsetNodes.top();
     unsetNodes.pop();
 
     //EndNode is actually current Node
-    if (graph.gasCost[curr.endNode][curr.gas] < curr.cost){continue;}
+    // if (graph.gasCost[curr.endNode][curr.gas] < curr.cost){continue;}
 
     if(curr.gas < cap && curr.cost + graph.price[curr.endNode] < graph.gasCost[curr.endNode][curr.gas+1]){
       graph.gasCost[curr.endNode][curr.gas+1] = curr.cost + graph.price[curr.endNode];
@@ -52,12 +56,12 @@ std::vector<Edge<int>> shortestPath (Graph<int> &graph, int startIndex, int cap)
       long altCost = graph.edges[curr.endNode][i].cost;
 
       if (curr.gas >= altCost){
-        int newGas = curr.gas - altCost;
+        long newGas = curr.gas - altCost;
         if (curr.cost < graph.gasCost[altIndex][newGas]){
           graph.gasCost[altIndex][newGas] = curr.cost;
           unsetNodes.emplace(altIndex, newGas, curr.cost);
           if(curr.cost < result[altIndex].cost){
-            result[altIndex] = Edge<int>(curr.endNode, newGas, curr.cost);
+            result[altIndex] = Edge<long>(curr.endNode, newGas, curr.cost);
           }
         }
       }
@@ -70,30 +74,31 @@ std::vector<Edge<int>> shortestPath (Graph<int> &graph, int startIndex, int cap)
 
 int main(void){
 
-  int M, N;
+  long M, N;
   std::cin >> N >> M;
 
-  Graph<int> graph(N);
+  Graph<long> graph(N);
 
-  for (int i=0; i<N; i++){
+  for (long i=0; i<N; i++){
     std::cin >> graph.price[i];
   }
-  for (int i=0; i<M; i++){
-    int U, V, D;
+  for (long i=0; i<M; i++){
+    long U, V, D;
     std::cin >> U >> V >> D;
     graph.edges[U].emplace_back(V, 0, D);
     graph.edges[V].emplace_back(U, 0, D);
   }
 
-  int Q;
+  long Q;
   std::cin >> Q;
-  for(int i=0; i<Q; i++){
-    int C, S, E;
+  for(long i=0; i<Q; i++){
+    long C, S, E;
     std::cin >> C >> S >> E;
-    std::vector<Edge<int>> result;
+    std::vector<Edge<long>> result;
+    graph.graphReset();
     result = shortestPath(graph, S, C);
 
-    if (result[E].cost < INT16_MAX){
+    if (result[E].cost < INT32_MAX){
       std::cout << result[E].cost << '\n';
     } else {
       std::cout << "impossible" << '\n';

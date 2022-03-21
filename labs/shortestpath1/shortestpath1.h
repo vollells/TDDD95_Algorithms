@@ -7,22 +7,30 @@
 
 #include <vector>
 
+template<typename T>
 struct Edge{
-  long endNode;
-  long cost;
-  Edge(long endNodeIn, long costIn) : endNode(endNodeIn), cost(costIn){}
+  T endNode, cost;
+  Edge(T nIn, long cIn) : endNode(nIn), cost(cIn){}
+  bool operator > (const Edge &other) const {
+    return cost > other.cost;
+  }
 };
 
+template<typename T>
 struct Graph{
-  long N;
-  std::vector<std::vector<Edge>> *edges;
+  T N;
+  std::vector<std::vector<Edge<T>>> edges;
 
-  Graph(long inN) : N(inN) {
-    edges = new std::vector<std::vector<Edge>>(inN, std::vector<Edge>());
-  };
-
-  void addEdge(long u, long v, long c){
-    edges->at(u).emplace_back(v, c);
+  Graph(T inN) : N(inN){
+    edges = std::vector<std::vector<Edge<T>>>(N);
+  }
+  /*
+   * Fuction: addEdge
+   *
+   * TC: Constant
+   */
+  void addEdge(T u, T v, T c){
+    edges[u].emplace_back(v, c);
   }
 };
 
@@ -30,9 +38,8 @@ struct Graph{
 /*
  * Function: shortestPath
  *
- * Use: Uses a set which always orders the according to distance, this
- * is compared to the best distance/path in the result vector. I also
- * make sure that there are no duplicates in the set.
+ * Use: Uses a prio queue which always orders the edges according to minimum distance, this
+ * is compared to the best distance/path in the result vector.
  *
  * Input :
  * - Graph: The current graph.
@@ -41,9 +48,10 @@ struct Graph{
  * Output:
  * - Result vector with distance and previous node information per node.
  *
- * TC: O(log(Node) * Edges)
+ * TC: O((|M| + |N|) * log(|N|)) where N nodes, M edges, and worst case
+ * time complexity.
  */
-std::vector<std::pair<long,long>> shortestPath (Graph, long);
+std::vector<Edge<long>> shortestPath (Graph<long>&, long);
 
 /*
  * Function: main

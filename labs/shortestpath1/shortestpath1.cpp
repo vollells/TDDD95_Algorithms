@@ -6,45 +6,40 @@
  */
 
 #include <vector>
-#include <set>
-#include <utility>
+#include <queue>
+#include <limits>
 #include <iostream>
 #include "shortestpath1.h"
 
-std::vector<std::pair<long,long>> shortestPath (Graph graph, long start_index){
+std::vector<Edge<long>> shortestPath(Graph<long> &graph, long startNode){
 
-  std::vector<std::pair<long,long>> result(graph.N, {INT32_MAX, -1});
-  std::set<std::pair<long, long> > unsetNodes;
+  std::vector<Edge<long>> result(graph.N, Edge<long>(-1, std::numeric_limits<long>::max()));
+  std::priority_queue<Edge<long>, std::vector<Edge<long>>, std::greater<Edge<long>>> unsetNodes;
 
-  unsetNodes.insert(std::make_pair(0, start_index));
-  result[start_index].first = 0;
-  result[start_index].second = start_index;
+  unsetNodes.emplace(startNode, 0);
+  result[startNode] = Edge<long>(startNode, 0);
+
 
   while(!unsetNodes.empty()){
-    std::pair<long, long> curr = *(unsetNodes.begin());
-    unsetNodes.erase(unsetNodes.begin());
+    Edge<long> curr = unsetNodes.top();
+    unsetNodes.pop();
 
-    int currIndex = curr.second;
+    long currIndex = curr.endNode;
 
-    for(long i = 0; (unsigned long) i < graph.edges->at(currIndex).size(); i++){
-      long altIndex = graph.edges->at(currIndex)[i].endNode;
-      long altCost = graph.edges->at(currIndex)[i].cost;
+    for(long i = 0; i < (long)graph.edges[currIndex].size(); i++){
+      long altIndex = graph.edges[currIndex][i].endNode;
+      long altCost = graph.edges[currIndex][i].cost;
 
-      if (result[altIndex].first > result[currIndex].first + altCost){
-
-        if (result[altIndex].first != INT32_MAX){
-          unsetNodes.erase(unsetNodes.find(std::make_pair(result[altIndex].first, altIndex)));
-        }
-
-        result[altIndex].first = result[currIndex].first + altCost;
-        result[altIndex].second = currIndex;
-        unsetNodes.insert(std::make_pair(result[altIndex].first, altIndex));
+      if (result[altIndex].cost > result[currIndex].cost + altCost){
+        result[altIndex] = Edge<long>(currIndex, result[currIndex].cost + altCost);
+        unsetNodes.emplace(altIndex, result[altIndex].cost);
       }
     }
   }
 
   return result;
 }
+
 
 int main(void){
 
@@ -54,7 +49,7 @@ int main(void){
 
     if ((N+M+Q+S) == 0){break;}
 
-    Graph graph (N);
+    Graph<long> graph (N);
     for(long i = 0; i < M; i++){
       long U, V, W;
       std::cin >> U >> V >> W;
@@ -62,14 +57,13 @@ int main(void){
     }
 
     // {{Dist, Prev}, {Dist, Prev}, ...}
-    std::vector<std::pair<long,long>> result;
-    result = shortestPath(graph, S);
+    std::vector<Edge<long>> result = shortestPath(graph, S);
 
     for(long i = 0; i < Q; i++){
       long nodeQ;
       std::cin >> nodeQ;
-      if(result[nodeQ].first != INT32_MAX){
-        std::cout << result[nodeQ].first << '\n';
+      if(result[nodeQ].cost != std::numeric_limits<long>::max()){
+        std::cout << result[nodeQ].cost << '\n';
       } else {
         std::cout << "Impossible" << '\n';
       }
