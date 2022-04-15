@@ -13,7 +13,7 @@
 #include "disjointSet.h"
 #include "mst.h"
 
-std::vector<Edge> kruskals(long nodes, std::priority_queue<Edge, std::vector<Edge>, std::greater<Edge>> &edges){
+std::vector<Edge> kruskals(long nodes, std::vector<Edge> &edges){
 
   if(nodes == 1){
     return {};
@@ -22,8 +22,8 @@ std::vector<Edge> kruskals(long nodes, std::priority_queue<Edge, std::vector<Edg
   DisjointSet sets = DisjointSet(nodes);
 
   while(!edges.empty()){
-    Edge e = edges.top();
-    edges.pop();
+    Edge e = edges.back();
+    edges.pop_back();
     if (sets.setFind(e.v) != sets.setFind(e.u)){
       result.push_back(e);
       sets.setUnion(e.v, e.u);
@@ -48,15 +48,15 @@ int main(void){
     std::cin >> N >> M;
     if(N + M == 0){break;}
 
-    std::priority_queue<Edge, std::vector<Edge>, std::greater<Edge>> edges;
+    std::vector<Edge> edges;
 
     for(long i = 0; i < M; i++){
       long  U, V, W;
       std::cin >> U >> V >> W;
-      edges.emplace(std::min(U, V), std::max(U, V), W);
+      edges.emplace_back(std::min(U, V), std::max(U, V), W);
     }
-
-    std::vector<Edge> result = kruskals(N, edges);
+    std::sort(edges.begin(), edges.end(), std::greater<Edge>());
+    std::vector<Edge> &&result = kruskals(N, edges);
     if ((long) result.size() != N-1) {
       std::cout << "Impossible" << '\n';
       continue;

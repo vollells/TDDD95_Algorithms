@@ -61,7 +61,7 @@ int main(void){
   std::vector<std::vector<long long>> graph(N, std::vector<long long>(N, 0));
   std::vector<std::vector<long long>> orgGraph(N, std::vector<long long>(N, 0));
   for(long i = 0; i < M; i++){
-    long U, V;
+    long long U, V;
     long long C;
     std::cin >> U >> V >> C;
     graph[U][V] = C;
@@ -86,6 +86,6 @@ int main(void){
     long u = e.first, v = e.second;
     std::cout << u << ' ' << v << ' ' << orgGraph[u][v] - graph[u][v] << '\n';
   }
-  
+
   return 0;
 }

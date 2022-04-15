@@ -6,6 +6,7 @@
  */
 
 #include <vector>
+#include <stack>
 
 template<typename T>
 struct Edge{
@@ -16,11 +17,11 @@ struct Edge{
 template<typename T>
 struct Graph{
   T N;
-  std::vector<std::vector<Edge<T>>> inEdges, outEdges;
+  std::vector<std::stack<Edge<T>>> inEdges, outEdges;
 
   Graph(T inN) : N(inN){
-    inEdges = std::vector<std::vector<Edge<T>>>(N);
-    outEdges = std::vector<std::vector<Edge<T>>>(N);
+    inEdges = std::vector<std::stack<Edge<T>>>(N);
+    outEdges = std::vector<std::stack<Edge<T>>>(N);
   }
   /*
    * Fuction: addEdge
@@ -28,8 +29,8 @@ struct Graph{
    * TC: Constant
    */
   void addEdge(T u, T v){
-    outEdges[u].emplace_back(u,v);
-    inEdges[v].emplace_back(u,v);
+    outEdges[u].emplace(u,v);
+    inEdges[v].emplace(u,v);
   }
 };
 
@@ -61,7 +62,12 @@ struct Graph{
  * Output:
  * - result: vector with all visisted nodes in reverse order.
  *
- * TC: O(|Nodes| * |Edges|)
+ * TC: O(|Nodes| + |Edges|) - We go through all edges to find a path
+ * through them all, when we cannot find another path, we then go
+ * backwards through the entire stack of visited nodes until we either
+ * empty the stack or find another unexplored edge.
+ *   The check for odd in/out only takes O(|Nodes|) time.
+ *
  */
 std::vector<long> eulerianPath(Graph<long> graph);
 

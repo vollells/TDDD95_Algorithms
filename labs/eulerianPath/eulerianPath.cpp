@@ -37,8 +37,8 @@ std::vector<long> eulerianPath(Graph<long> graph){
     } else {
       stack.push(curr);
       long tmp = curr;
-      curr = graph.outEdges[curr].front().endNode;
-      graph.outEdges[tmp].erase(graph.outEdges[tmp].begin());
+      curr = graph.outEdges[curr].top().endNode;
+      graph.outEdges[tmp].pop();
     }
   }
   result.push_back(curr);

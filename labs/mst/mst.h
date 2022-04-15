@@ -31,7 +31,10 @@ struct Edge{
  * - result: vector with distance and previous node information per node.
  *
  * TC: O(|M|* log(|N|)) where N nodes, M edges, and worst case time
- * complexity.
+ * complexity. Since we go through all edges to check for the cheapest
+ * path to a node we haven't found yet. This we check in the disjoint
+ * set which takes O(log(|N|)) (Since it's not fully optimized,
+ * otherwise could be constant).
  */
 std::vector<Edge> kruskals(long, std::priority_queue<Edge, std::vector<Edge>, std::greater<Edge>>&);
 
