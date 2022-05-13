@@ -1,7 +1,29 @@
+/*
+   Author: Victor Lells
+   Problem: Erathostenes Prime Sieve
+   TC: Check each function
+   How To Run: Compile and run!
+*/
+
 #include <iostream>
 #include <vector>
 #include <utility>
 
+/*
+ * Algo: We go thorugh all numbers up to N and check their multiples
+ * up to N.
+ *
+ * Input :
+ * - N : The largest number to be calculated.
+ *
+ * Output: A pair with Number of prime numbes below including N and a
+ * bool array to see if a particualr number is prime.
+ *
+ * TC: ~log(N) as we only check each multiple of a number which when
+ * i=2 is max N/2 times.
+ *
+ * MC: O(N).
+ */
 std::pair<long, std::vector<bool>> primeSieve(long N){
   std::vector<bool> result(N, true);
   long count = N-2;
@@ -21,6 +43,7 @@ std::pair<long, std::vector<bool>> primeSieve(long N){
   return  {count, result};
 }
 
+// Kattis problem specific, not relevant.
 int main(void){
   long N, Q;
   std::cin >> N >> Q;

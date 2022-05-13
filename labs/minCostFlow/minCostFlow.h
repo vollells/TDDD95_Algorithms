@@ -52,8 +52,9 @@ struct Graph{
 /*
  * Function: djikstras
  *
- * Algo: Generic BFS, we go through all the edges of vertex and then
- * add that vertex to the queue if it has not been explored before.
+ * Algo: Generic djikstras, we go through all the edges of vertex and
+ * then add that vertex to the queue if it has not been explored
+ * before.
  *
  * Input :
  * - graph: The current graph.
@@ -70,9 +71,9 @@ std::vector<Edge&> djikstra (Graph&, long, long);
 /*
  * Function: fordFulkerson
  *
- * Algo: Try to find the shortest path from the source to the sink with more
- * available flow, if yes we fill the path (def. by min edges
- * available flow.). If no, we have found the maxflow assignment
+ * Algo: Try to find the shortest path from the source to the sink
+ * with more available flow, if yes we fill the path (def. by min
+ * edges available flow.). If no, we have found the maxflow assignment
  * possible.
  *
  * Input :
@@ -85,7 +86,7 @@ std::vector<Edge&> djikstra (Graph&, long, long);
  *
  * TC: O(|E|^2 * log(|V|)*|V| ) where V vertices, E edges, and worst case
  * time complexity. Since the most time consuming part of the loop is
- * finding the path which is (O(|E|* log(|V|)) with bfs) and we need to
+ * finding the path which is (O(|E|* log(|V|)) with djikstras) and we need to
  * saturate, in worst case, E edges, and each path has the length of
  * atmost |V|.
  */
